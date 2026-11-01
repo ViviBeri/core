@@ -494,11 +494,9 @@ async def test_camera_webrtc(
     assert response
     assert response.get("success") is True
     front_camera_mock.sync_close_webrtc_stream.assert_called_once()
-    async def test_camera_update_without_last_event(
-    hass: HomeAssistant,
-    mock_ring_client,
-    mock_ring_devices,
-) -> None:
+
+
+async def test_camera_update_without_last_event(
     hass: HomeAssistant,
     mock_ring_client,
     mock_ring_devices,
