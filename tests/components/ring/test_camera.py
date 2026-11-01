@@ -499,6 +499,10 @@ async def test_camera_webrtc(
     mock_ring_client,
     mock_ring_devices,
 ) -> None:
+    hass: HomeAssistant,
+    mock_ring_client,
+    mock_ring_devices,
+) -> None:
     """Test camera update handles missing last event."""
     await setup_platform(hass, Platform.CAMERA)
 
