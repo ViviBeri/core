@@ -261,7 +261,8 @@ class RingCam(RingEntity[RingDoorBell], Camera):
         if TYPE_CHECKING:
             # _last_event is set before calling update so will never be None
             assert self._last_event
-
+        if self._last_event is None:
+            return
         if self._last_event["recording"]["status"] != "ready":
             return
 
