@@ -504,7 +504,7 @@ async def test_camera_update_without_last_event(
     """Test camera update handles missing last event."""
     await setup_platform(hass, Platform.CAMERA)
 
-    camera = get_camera_from_entity_id(hass, "camera.front_last_recording")
+    camera = get_camera_from_entity_id(hass, "camera.front_live_view")
     assert camera is not None
 
     camera._last_event = None
