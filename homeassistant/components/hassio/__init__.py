@@ -13,6 +13,7 @@ from aiohasupervisor.models import (
     GreenOptions,
     HomeAssistantOptions,
     SupervisorOptions,
+    UpdateChannel,
     YellowOptions,
 )
 
@@ -80,6 +81,7 @@ from .const import (
     OPTION_ADD_ON_BACKUP_BEFORE_UPDATE,
     OPTION_ADD_ON_BACKUP_RETAIN_COPIES,
     OPTION_CORE_BACKUP_BEFORE_UPDATE,
+    OPTION_CORE_AUTO_UPDATE,
     STATS_COORDINATOR,
     UPDATE_KEY_NETWORK,
 )
