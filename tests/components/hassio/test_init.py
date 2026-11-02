@@ -65,8 +65,8 @@ from homeassistant.components.hassio.const import (
     HASSIO_MAIN_UPDATE_INTERVAL,
     OPTION_ADD_ON_BACKUP_BEFORE_UPDATE,
     OPTION_ADD_ON_BACKUP_RETAIN_COPIES,
-    OPTION_CORE_BACKUP_BEFORE_UPDATE,
     OPTION_CORE_AUTO_UPDATE,
+    OPTION_CORE_BACKUP_BEFORE_UPDATE,
     REQUEST_REFRESH_DELAY,
 )
 from homeassistant.components.homeassistant import (
@@ -365,7 +365,7 @@ async def test_setup_auto_update_default(
 async def test_setup_onboarding_supervisor_update_error(
     hass: HomeAssistant,
     supervisor_client: AsyncMock,
-    ) -> None:
+) -> None:
     """Test that during onboarding, an unknown SupervisorError causes retry."""
     supervisor_client.supervisor.update.side_effect = SupervisorError
 
