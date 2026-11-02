@@ -480,7 +480,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     # across retries.
     dev_reg = dr.async_get(hass)
 
-        coordinator = HassioMainDataUpdateCoordinator(hass, entry, dev_reg)
+    coordinator = HassioMainDataUpdateCoordinator(hass, entry, dev_reg)
     await coordinator.async_config_entry_first_refresh()
 
     if (
