@@ -66,6 +66,7 @@ from homeassistant.components.hassio.const import (
     OPTION_ADD_ON_BACKUP_BEFORE_UPDATE,
     OPTION_ADD_ON_BACKUP_RETAIN_COPIES,
     OPTION_CORE_BACKUP_BEFORE_UPDATE,
+    OPTION_CORE_AUTO_UPDATE,
     REQUEST_REFRESH_DELAY,
 )
 from homeassistant.components.homeassistant import (
@@ -316,11 +317,55 @@ async def test_setup_onboarding_supervisor_no_update(
     assert entry.state is ConfigEntryState.LOADED
     supervisor_client.supervisor.update.assert_called_once()
 
+@pytest.mark.parametrize(
+    ("onboarded", "initial_options", "expected"),
+    [
+        pytest.param(False, {}, True, id="fresh-install"),
+        pytest.param(True, {}, None, id="existing-install"),
+        pytest.param(
+            False,
+            {OPTION_CORE_AUTO_UPDATE: False},
+            False,
+            id="explicitly-disabled",
+        ),
+    ],
+)
+async def test_setup_auto_update_default(
+    hass: HomeAssistant,
+    supervisor_client: AsyncMock,
+    onboarded: bool,
+    initial_options: dict[str, bool],
+    expected: bool | None,
+) -> None:
+    """Test automatic updates default on only for fresh installations."""
+    supervisor_client.supervisor.update.side_effect = SupervisorBadRequestError
+    config_entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={},
+        options=initial_options,
+        unique_id=DOMAIN,
+    )
+    config_entry.add_to_hass(hass)
+
+    with (
+        patch.dict(os.environ, MOCK_ENVIRON),
+        patch(
+            "homeassistant.components.hassio.async_is_onboarded",
+            return_value=onboarded,
+        ),
+    ):
+        assert await hass.config_entries.async_setup(config_entry.entry_id)
+        await hass.async_block_till_done()
+
+    if expected is None:
+        assert OPTION_CORE_AUTO_UPDATE not in config_entry.options
+    else:
+        assert config_entry.options[OPTION_CORE_AUTO_UPDATE] is expected
 
 async def test_setup_onboarding_supervisor_update_error(
     hass: HomeAssistant,
     supervisor_client: AsyncMock,
-) -> None:
+  ) -> None:
     """Test that during onboarding, an unknown SupervisorError causes retry."""
     supervisor_client.supervisor.update.side_effect = SupervisorError
 
