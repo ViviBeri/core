@@ -365,7 +365,7 @@ async def test_setup_auto_update_default(
 async def test_setup_onboarding_supervisor_update_error(
     hass: HomeAssistant,
     supervisor_client: AsyncMock,
-  ) -> None:
+      ) -> None:
     """Test that during onboarding, an unknown SupervisorError causes retry."""
     supervisor_client.supervisor.update.side_effect = SupervisorError
 
