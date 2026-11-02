@@ -480,19 +480,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     # across retries.
     dev_reg = dr.async_get(hass)
 
-    coordinator = HassioMainDataUpdateCoordinator(hass, entry, dev_reg)
-await coordinator.async_config_entry_first_refresh()
+        coordinator = HassioMainDataUpdateCoordinator(hass, entry, dev_reg)
+    await coordinator.async_config_entry_first_refresh()
 
-if (
-    not async_is_onboarded(hass)
-    and OPTION_CORE_AUTO_UPDATE not in entry.options
-    and coordinator.data.os is not None
-    and coordinator.data.supervisor.channel == UpdateChannel.STABLE
-):
-    hass.config_entries.async_update_entry(
-        entry,
-        options={**entry.options, OPTION_CORE_AUTO_UPDATE: True},
-    )
+    if (
+        not async_is_onboarded(hass)
+        and OPTION_CORE_AUTO_UPDATE not in entry.options
+        and coordinator.data.os is not None
+        and coordinator.data.supervisor.channel == UpdateChannel.STABLE
+    ):
+        hass.config_entries.async_update_entry(
+            entry,
+            options={**entry.options, OPTION_CORE_AUTO_UPDATE: True},
+        )
 
     hass.data[MAIN_COORDINATOR] = coordinator
     entry.async_on_unload(async_setup_addon_panel_coordinator(hass, coordinator))
