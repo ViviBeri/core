@@ -258,6 +258,9 @@ class RingCam(RingEntity[RingDoorBell], Camera):
             self._attr_motion_detection_enabled = self._device.motion_detection
             self.async_write_ha_state()
 
+        if self._last_event is None:
+            return
+
         if TYPE_CHECKING:
             # _last_event is set before calling update so will never be None
             assert self._last_event

@@ -494,3 +494,24 @@ async def test_camera_webrtc(
     assert response
     assert response.get("success") is True
     front_camera_mock.sync_close_webrtc_stream.assert_called_once()
+
+
+async def test_camera_update_without_last_event(
+    hass: HomeAssistant,
+    mock_ring_client,
+    mock_ring_devices,
+) -> None:
+    """Test camera update handles missing last event."""
+    await setup_platform(hass, Platform.CAMERA)
+
+    camera = get_camera_from_entity_id(hass, "camera.front_live_view")
+    assert camera is not None
+
+    camera._last_event = None
+
+    front_camera_mock = mock_ring_devices.get_device(FRONT_DEVICE_ID)
+    front_camera_mock.async_recording_url.reset_mock()
+
+    await camera.async_update()
+
+    front_camera_mock.async_recording_url.assert_not_called()
