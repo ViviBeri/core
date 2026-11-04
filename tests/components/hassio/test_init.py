@@ -317,6 +317,7 @@ async def test_setup_onboarding_supervisor_no_update(
     assert entry.state is ConfigEntryState.LOADED
     supervisor_client.supervisor.update.assert_called_once()
 
+
 @pytest.mark.parametrize(
     ("onboarded", "initial_options", "expected"),
     [
@@ -361,6 +362,7 @@ async def test_setup_auto_update_default(
         assert OPTION_CORE_AUTO_UPDATE not in config_entry.options
     else:
         assert config_entry.options[OPTION_CORE_AUTO_UPDATE] is expected
+
 
 async def test_setup_onboarding_supervisor_update_error(
     hass: HomeAssistant,
@@ -1802,6 +1804,7 @@ async def test_deprecated_installation_issue_supported_board(
         async_fire_time_changed(hass)
         await hass.async_block_till_done()
 
+    assert issue_registry.async_get_issue("homeassistant", issue_id) is None
     assert len(issue_registry.issues) == 0
 
 
@@ -2076,24 +2079,34 @@ async def test_get_addons_list(hass: HomeAssistant) -> None:
     assert "test2" in slugs
 
 
-@pytest.mark.usefixtures("mock_all", "entity_registry_enabled_by_default")
-async def test_get_addons_stats(hass: HomeAssistant) -> None:
-    """Test get_addons_stats returns serialized dicts, not model objects.
+@pytest.mark.usefixtures("entity_registry_enabled_by_default")
+async def test_get_addons_stats(
+    hass: HomeAssistant,
+    addons_list: AsyncMock,
+) -> None:
+    """Test get_addons_stats returns serialized addon statistics."""
+    addons_list.return_value[1] = replace(
+        addons_list.return_value[1],
+        state=AddonState.STARTED,
+    )
 
-    Both test addons are STOPPED in mock_all so no addon stats are fetched;
-    the result is an empty dict which is the correct return type.
-    """
     with patch.dict(os.environ, MOCK_ENVIRON):
         config_entry = MockConfigEntry(domain=DOMAIN, data={}, unique_id=DOMAIN)
         config_entry.add_to_hass(hass)
         assert await hass.config_entries.async_setup(config_entry.entry_id)
         await hass.async_block_till_done()
 
+    async_fire_time_changed(
+        hass, dt_util.utcnow() + timedelta(seconds=REQUEST_REFRESH_DELAY)
+    )
+    await hass.async_block_till_done()
+
     result = get_addons_stats(hass)
+
     assert isinstance(result, dict)
-    # All values must be plain dicts, never AddonsStats model objects
-    for stats in result.values():
-        assert isinstance(stats, dict)
+    assert "test2" in result
+    assert isinstance(result["test2"], dict)
+    assert result["test2"]["cpu_percent"] == 0.8
 
 
 @pytest.mark.usefixtures("mock_all", "entity_registry_enabled_by_default")
